@@ -2,15 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
-/*class Square extends React.Component {
-  render() {
-    return (
-      <button className="square" onClick={() => this.props.onClick()}>
-        {this.props.value}
-      </button>
-    );
-  }
-}*/
+
 function Square(props){
     return (
       <button className="square" onClick={props.onClick}>
@@ -19,23 +11,11 @@ function Square(props){
     );
 }
 
-/*
-function BordRow(props){
-    return(
-        for (var i = 1; i <= 4; i++) {
-            <Square
-                value = {i}
-                onClick={()=>this.props.onClick(i)}
-            />
-        }
-    )
-}*/
-
 
 class Board extends React.Component {
     renderSquare(j) {
       return (
-          <Square 
+          <Square
             value={this.props.squares[j-1]}
             onClick={()=>this.props.onClick(j)}
           />
@@ -52,14 +32,14 @@ class Board extends React.Component {
         }
 
         return(
-            <div className="board-row"> 
+            <div className="board-row">
                 {cols}
             </div>
         );
     }
 
   render() {
-   
+
    var rows = [];
    var rowCount = this.props.bordSize;
 
@@ -76,7 +56,7 @@ class Board extends React.Component {
 }
 
 class Game extends React.Component {
-  
+
   constructor(props){
 
     super(props);
@@ -86,7 +66,7 @@ class Game extends React.Component {
     this.state = {
         history:[{
             squares: Array(gameSize*gameSize).fill(null),
-            cordinate: Array(2).fill(null),
+            coordinate: Array(2).fill(null),
         }],
 
         xIsNext:true,
@@ -95,43 +75,39 @@ class Game extends React.Component {
      }
   }
 
-  getCordinate(i){
-      var cordinate = new Array(2);
+  getCoordinate(i){
+      var coordinate = new Array(2);
       var x = parseInt(i / this.props.gameSize,10);
       var y = parseInt(i % this.props.gameSize,10);
 
-      cordinate[0] = y===0 ? x : x + 1;
-      cordinate[1] = y===0 ? this.props.gameSize : y;
+      coordinate[0] = y===0 ? x : x + 1;
+      coordinate[1] = y===0 ? this.props.gameSize : y;
 
-      return cordinate;
+      return coordinate;
   }
 
-  calculateWinner(squares,istep){
+  calculateWinner(squares,step){
 
-   /*if (this.state.stepCount < this.props.gameSize*2-1) {
-      return null;
-    }*/
-
-    var curValue = squares[istep-1];
+    var curValue = squares[step-1];
 
     //坐标已经转换后，从1开始
-    var cordinate = new Array();
-    cordinate = this.getCordinate(istep);
+    var coordinate = new Array();
+    coordinate = this.getCoordinate(step);
 
     var trueCount = 0;
-    for (var i = 0; i < this.props.gameSize; i++) { 
-      if(squares[(cordinate[0]-1)*this.props.gameSize+i] === curValue) {
+    for (var i = 0; i < this.props.gameSize; i++) {
+      if(squares[(coordinate[0]-1)*this.props.gameSize+i] === curValue) {
         trueCount ++;
       }
 
     }
     if (trueCount === this.props.gameSize) {
         return curValue;
-    } 
+    }
 
     trueCount = 0
-    for (var i = 0; i < this.props.gameSize; i++) {
-      if(squares[(cordinate[1]-1)+this.props.gameSize*i] === curValue) {
+    for (let i = 0; i < this.props.gameSize; i++) {
+      if(squares[(coordinate[1]-1)+this.props.gameSize*i] === curValue) {
         trueCount++;
       }
     }
@@ -139,11 +115,11 @@ class Game extends React.Component {
       return curValue;
     }
 
-    if (cordinate[0]===cordinate[1] ||
-        (this.props.gameSize - cordinate[0] + 1)===cordinate[1]){
+    if (coordinate[0]===coordinate[1] ||
+        (this.props.gameSize - coordinate[0] + 1)===coordinate[1]){
       //此时需检查横竖及对角线
     trueCount = 0;
-      for (var i = 0; i < this.props.gameSize; i++) {
+      for (let i = 0; i < this.props.gameSize; i++) {
         if (squares[i+this.props.gameSize*i] === curValue) {
           trueCount ++;
         }
@@ -153,7 +129,7 @@ class Game extends React.Component {
       }
 
       trueCount = 0;
-      for (var i = 0; i < this.props.gameSize; i++) {
+      for (let i = 0; i < this.props.gameSize; i++) {
         if (squares[(i+1)*(this.props.gameSize-1)] === curValue) {
           trueCount++;
         }
@@ -172,7 +148,7 @@ class Game extends React.Component {
       const current = history[history.length-1];
       const squares = current.squares.slice();
 
-      const cordinate = this.getCordinate(i);
+      const coordinate = this.getCoordinate(i);
 
       if (this.state.winner || squares[i-1]) {
           return;
@@ -181,7 +157,7 @@ class Game extends React.Component {
       squares[i-1] = this.state.xIsNext ? 'X':'O';
 
       this.setState({
-        history: history.concat([{squares:squares,cordinate:cordinate}]),
+        history: history.concat([{squares:squares,coordinate:coordinate}]),
         xIsNext: !this.state.xIsNext,
         stepCount: this.state.stepCount + 1,
         winner: this.calculateWinner(squares,i),
@@ -193,7 +169,7 @@ class Game extends React.Component {
       this.setState({
       history:[{
           squares: Array(this.props.gameSize*this.props.gameSize).fill(null),
-          cordinate: Array(2).fill(null),
+          coordinate: Array(2).fill(null),
       }],
       xIsNext:true,
       stepCount: 0,
@@ -213,8 +189,9 @@ class Game extends React.Component {
     const current = history[this.state.stepCount];
 
     const moves = history.map((step,move) => {
-        const desc = move ? 'Step'+ move + ': cord(' + history[move].cordinate+')' : 'Game start！';
-    
+        const desc = move ? 'Step' + move + ': cord('
+            + history[move].coordinate+')' : 'Game start！';
+
         return (
             <li key = {move}>
                 <a ref="#" onClick={()=>this.jump(move)}>{desc}</a>
@@ -238,7 +215,7 @@ class Game extends React.Component {
             <ol>{moves}</ol>
         </div>
         <div className="game-board">
-          <Board 
+          <Board
             squares={current.squares}
             bordSize={this.props.gameSize}
             onClick={(i)=>this.handleClick(i)}
@@ -252,6 +229,6 @@ class Game extends React.Component {
 // ========================================
 
 ReactDOM.render(
-  <Game gameSize={2}/>,
+  <Game gameSize={3}/>,
   document.getElementById('root')
 );
